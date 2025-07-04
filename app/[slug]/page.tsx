@@ -1,4 +1,4 @@
-import { redirect, notFound } from "next/navigation"
+import { redirect, notFound } from 'next/navigation'
 
 interface PageProps {
   params: {
@@ -6,14 +6,22 @@ interface PageProps {
   }
 }
 
-export default function DynamicRedirectPage({ params }: PageProps) {
-  const { slug } = params
+async function logAnalytics(slug: string) {
+  await fetch('/api/log', {
+    method: 'POST',
+    body: JSON.stringify({ page: slug }),
+    headers: { 'Content-Type': 'application/json' }
+  }).catch(() => {})
+}
 
-  if (slug.toUpperCase().startsWith("NU_") || slug.toUpperCase().endsWith("_SITEMAP")) {
+export default async function DynamicRedirectPage({ params }: PageProps) {
+  const { slug } = params
+  const envKey = slug.toUpperCase()
+
+  if (envKey.startsWith('NU_') || envKey.endsWith('_SITEMAP')) {
+    await logAnalytics(slug)
     notFound()
   }
-
-  const envKey = slug.toUpperCase()
 
   const targetUrl =
     process.env[`${envKey}_SITEMAP`] ||
@@ -22,8 +30,10 @@ export default function DynamicRedirectPage({ params }: PageProps) {
     process.env[`NU_${envKey}`]
 
   if (!targetUrl) {
+    await logAnalytics(slug)
     notFound()
   }
 
+  await logAnalytics(slug)
   redirect(targetUrl)
 }
