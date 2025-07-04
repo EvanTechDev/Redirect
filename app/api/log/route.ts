@@ -4,7 +4,7 @@ export async function POST(request: NextRequest) {
   try {
     const { page } = await request.json()
 
-    const analyticsEndpoint = process.env.VERCEL_ENDPOINT || 'https://your-app.vercel.sh/_vercel/insights'
+    const analyticsEndpoint = process.env.ANA_ENDPOINT || 'https://your-app.vercel.sh/_vercel/insights'
     
     await fetch(`${analyticsEndpoint}/page`, {
       method: 'POST',
